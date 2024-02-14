@@ -8,7 +8,7 @@
 
 docker network create --subnet 192.168.0.0/24 tux
 
-docker run -d --rm --name=mysql
+*docker run -d --rm --name=mysql
 -v $PWD/dados:/var/lib/mysql
 -p 3306:3306
 --net tux
@@ -19,7 +19,7 @@ docker run -d --rm --name=mysql
 -e MYSQL_USER=tux
 -e MYSQL_PASSWORD=ABC123xyz
 mysql
---default-authentication-plugin=mysql_native_password
+--default-authentication-plugin=mysql_native_password*
 
 
 ### 2. Conexão ao banco
