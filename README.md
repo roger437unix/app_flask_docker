@@ -29,7 +29,7 @@ mysql
 
 ### 3. Criar imagem da aplicação
 
-*docker build --tag miiapp .*
+*docker build --tag miiapp ./app_flask_docker*
 
 
 ### 4. Criar container com a nova imagem
