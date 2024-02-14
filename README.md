@@ -11,8 +11,8 @@ docker network create --subnet 192.168.0.0/24 tux
 docker run -d --rm --name=mysql
 -v $PWD/dados:/var/lib/mysql
 -p 3306:3306
---net tux \
---ip 192.168.0.100 \
+--net tux
+--ip 192.168.0.100
 -e MYSQL_ROOT_PASSWORD=mysql
 -e MYSQL_ROOT_HOST=%
 -e MYSQL_DATABASE=db_users
