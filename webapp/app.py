@@ -25,7 +25,6 @@ mariadb -utux -p -h 192.168.0.100 db_users
 from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import create_engine, text
 from credenciais import db_config
-import os
 
 app = Flask(__name__)
 
@@ -55,9 +54,9 @@ def tabela():
     connection.close()
 
 
-def select():
+def select(conn=True):
     global lista
-    lista = []
+    lista = []    
     connection = conexao()
     result = connection.execute(text("SELECT * FROM users"))
     connection.close()        
@@ -71,15 +70,13 @@ select()
 
 
 @app.get("/")
-def home():        
-    ref = request.args.get('ref')   
-    if ref == '1':
-        select()           
+def home():                       
     return render_template("base.html", lista_front=lista)
 
 
 @app.post("/add")
 def add():
+    select()
     user = []    
     nome  = request.form.get("nome")
     fone  = request.form.get("fone")
@@ -97,48 +94,47 @@ def add():
             connection = conexao()
             connection.execute(text(query_insert))
             connection.execute(text("COMMIT"))
-            connection.close()              
+            connection.close()                         
         except:
-            print('Falha no "insert"')                             
+            print('Falha no "insert"')
+        select()                             
     else:
         print('** Usuário não cadastrato, todos os dados devem ser fornecidos **')        
-    return redirect(url_for("home", ref=1))
+    return redirect(url_for("home"))
 
 
 @app.post("/sort")
 def sort():
-    # ref = False
-    if lista != []:        
+    select()    
+    if lista != []:                
         print(f'** Ordenando a lista **')        
         lista.sort(key=lambda x: x[1])       
-    return redirect(url_for("home", ref=0))
+    return redirect(url_for("home"))
 
 
 @app.post("/reverse")
 def reverse():
-    global lista
-    if lista != []:        
+    global lista   
+    select()
+    if lista != []:                
         print(f'** Invertendo a lista **')        
         lista = sorted(lista, reverse=True, key=lambda x: x[1])
-    return redirect(url_for("home", ref=0))
+    return redirect(url_for("home"))
 
 
 @app.post("/clear")
 def clear():    
-    print(f'==> Apagando todos registros do banco de dados <==')
-    lista_id = []
+    print(f'==> Apagando todos registros do banco de dados <==')   
     try:
         connection = conexao()
-        result = connection.execute(text("SELECT id FROM users"))         
-        for row in result:
-            lista_id.append(row[0])
-        for id in lista_id:
-            connection.execute(text(f"DELETE FROM users WHERE id = {id}"))
+        connection.execute(text(f"DELETE FROM users"))
         connection.execute(text("COMMIT"))
-        connection.close()        
+        connection.close()
+        global lista
+        lista = []        
     except:
         print('Falha em "limpar tabela"')    
-    return redirect(url_for("home", ref=1))
+    return redirect(url_for("home"))
 
 
 @app.get("/delete/<id_banco>")
@@ -149,10 +145,11 @@ def delete(id_banco):
         connection = conexao()
         connection.execute(text(f"DELETE FROM users WHERE id = {id}"))
         connection.execute(text("COMMIT"))
-        connection.close()        
+        connection.close()
+        select()        
     except:
         print('Falha ao excluir usuário')             
-    return redirect(url_for("home", ref=1))
+    return redirect(url_for("home"))
 
 
 if __name__ == '__main__':    
