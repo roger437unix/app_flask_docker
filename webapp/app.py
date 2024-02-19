@@ -34,10 +34,10 @@ url  = db_config['host']
 db   = db_config['database']
 
 
-def conexao():
-    engine = create_engine(f"mysql+mysqlconnector://{user}:{pw}@{url}/{db}")    
-    connection = engine.connect()
-    return connection
+# def conexao():
+engine = create_engine(f"mysql+mysqlconnector://{user}:{pw}@{url}/{db}")    
+connection = engine.connect()
+# return connection
 
 
 def tabela():
@@ -49,17 +49,19 @@ def tabela():
     email VARCHAR(50) NOT NULL
     );
     '''
-    connection = conexao()
+    # connection = conexao()
     connection.execute(text(f"{query_create_table}"))
-    connection.close()
+    connection.execute(text("COMMIT"))
+    # connection.close()
 
 
 def select(conn=True):
     global lista
     lista = []    
-    connection = conexao()
+    # connection = conexao()
     result = connection.execute(text("SELECT * FROM users"))
-    connection.close()        
+    connection.execute(text("COMMIT"))
+    # connection.close()        
     for row in result:
         lista.append(row)    
 
@@ -91,10 +93,10 @@ def add():
             query_insert = f"INSERT INTO users (nome, fone, email) \
             VALUES ('{nome}', '{fone}', '{email}')"
 
-            connection = conexao()
+            # connection = conexao()
             connection.execute(text(query_insert))
             connection.execute(text("COMMIT"))
-            connection.close()                         
+            # connection.close()                         
         except:
             print('Falha no "insert"')
         select()                             
@@ -126,10 +128,10 @@ def reverse():
 def clear():    
     print(f'==> Apagando todos registros do banco de dados <==')   
     try:
-        connection = conexao()
+        # connection = conexao()
         connection.execute(text(f"DELETE FROM users"))
         connection.execute(text("COMMIT"))
-        connection.close()
+        # connection.close()
         global lista
         lista = []        
     except:
@@ -142,10 +144,10 @@ def delete(id_banco):
     id = id_banco
     print(f'==> Removendo Id: {id}')
     try:
-        connection = conexao()
+        # connection = conexao()
         connection.execute(text(f"DELETE FROM users WHERE id = {id}"))
         connection.execute(text("COMMIT"))
-        connection.close()
+        # connection.close()
         select()        
     except:
         print('Falha ao excluir usuário')             
@@ -153,4 +155,4 @@ def delete(id_banco):
 
 
 if __name__ == '__main__':    
-    app.run(host="0.0.0.0", debug=True)    
+    app.run(host="0.0.0.0", debug=True)
